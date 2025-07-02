@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TerraBook - Property Listing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-primary: #27ae60;
+      --green-dark: #1b5e20;
+      --gray-light: #f7f9fa;
+      --gray-dark: #333;
+      --white: #fff;
+      --border-radius: 12px;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --font-family: 'Poppins', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--gray-light);
+      color: var(--gray-dark);
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background-color: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: 0 0 12px var(--shadow);
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--border-radius);
+    }
+
+    .property-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .location {
+      font-size: 1.1rem;
+      color: #777;
+      margin-bottom: 1.5rem;
+    }
+
+    .description {
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .amenities {
+      margin-bottom: 1.5rem;
+    }
+
+    .amenities h3 {
+      margin-bottom: 0.5rem;
+      color: var(--green-dark);
+    }
+
+    .amenities ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .amenities li {
+      background-color: var(--gray-light);
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+    }
+
+    .pricing {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--green-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .book-btn {
+      background-color: var(--green-primary);
+      color: var(--white);
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .book-btn:hover {
+      background-color: var(--green-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0" alt="Property image 1">
+      <img src="https://images.unsplash.com/photo-1508610048659-6f1e0ed468d2" alt="Property image 2">
+      <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267" alt="Property image 3">
+    </div>
+
+    <div class="property-title">Forest Eco Lodge</div>
+    <div class="location">Mossel Bay, Western Cape</div>
+    <div class="description">
+      Nestled in the lush coastal forest, this eco lodge offers serene comfort while being powered entirely by solar energy. Wake up to the sounds of birds and enjoy hiking trails, local wildlife, and stargazing at night.
+    </div>
+
+    <div class="amenities">
+      <h3>Amenities</h3>
+      <ul>
+        <li>Free WiFi</li>
+        <li>Solar Power</li>
+        <li>Private Balcony</li>
+        <li>Breakfast Included</li>
+        <li>Guided Nature Walks</li>
+        <li>On-site Restaurant</li>
+      </ul>
+    </div>
+
+    <div class="pricing">R1,800 / night</div>
+    <button class="book-btn">Book Now</button>
+  </div>
+</body>
+</html>
