@@ -1,493 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TerraBook Advanced Dashboard</title>
-
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <!-- Chart.js -->
+  <title>TerraBook Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- FullCalendar CSS & JS -->
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-  <!-- jsPDF for PDF export -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- SheetJS for Excel export -->
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
-      overflow-x: hidden;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7f8;
+      color: #333;
     }
 
     .sidebar {
-      height: 100vh;
-      background-color: #2d3e50;
-      color: white;
-      padding-top: 20px;
-      position: fixed;
       width: 240px;
-      overflow-y: auto;
+      background: #2e7d32;
+      color: #fff;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
     .sidebar a {
-      color: white;
+      display: block;
+      color: #fff;
+      padding: 12px 24px;
       text-decoration: none;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.3s ease;
-      font-weight: 600;
+      transition: background 0.2s;
     }
 
-    .sidebar a:hover,
-    .sidebar a.active {
-      background-color: #1a252f;
-      text-decoration: none;
+    .sidebar a:hover {
+      background: #388e3c;
     }
 
-    .sidebar a i {
-      font-size: 1.2rem;
-    }
-
-    main {
+    .main {
       margin-left: 240px;
       padding: 20px;
     }
 
-    header {
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
-      background: white;
-      padding: 10px 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      margin-bottom: 30px;
     }
 
-    .filter-group {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .filter-group select {
-      min-width: 150px;
-    }
-
-    .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-
-    .chart-card {
-      background: white;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    .profile-dropdown {
       position: relative;
+      display: inline-block;
     }
 
-    .chart-card h5 {
-      margin-bottom: 12px;
-      font-weight: 700;
-      color: #2d3e50;
-    }
-
-    #calendar {
-      max-width: 100%;
-      background: white;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      margin-bottom: 40px;
-    }
-
-    /* Notification bell */
-    .notifications {
-      position: relative;
-      cursor: pointer;
-      font-size: 1.6rem;
-      color: #2d3e50;
-    }
-
-    .notifications .badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: #28a745;
+    .profile-btn {
+      background: #2e7d32;
       color: white;
-      border-radius: 50%;
-      padding: 3px 7px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      border: none;
+      padding: 10px 16px;
+      cursor: pointer;
+      border-radius: 5px;
     }
 
-    /* Dropdowns */
-    .dropdown-menu {
-      min-width: 200px;
-      max-height: 300px;
-      overflow-y: auto;
+    .profile-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
     }
 
-    /* Sustainability badges */
-    .badge-eco {
-      font-size: 1.2rem;
-      margin-right: 8px;
+    .profile-menu a {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #333;
     }
 
-    /* Export buttons */
+    .profile-menu a:hover {
+      background: #f0f0f0;
+    }
+
+    .profile-dropdown:hover .profile-menu {
+      display: block;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    canvas {
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
     .export-buttons {
-      margin-bottom: 20px;
+      margin: 20px 0;
+    }
+
+    .export-buttons button {
+      margin-right: 10px;
+      padding: 8px 12px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .export-buttons button:hover {
+      background: #45a049;
+    }
+
+    .filters {
+      margin: 20px 0;
+    }
+
+    .filters select {
+      padding: 6px 10px;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
-
 <body>
+  <div class="sidebar">
+    <h2>TerraBook</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Bookings</a>
+    <a href="#">Explore</a>
+    <a href="#">Business</a>
+    <a href="#">Settings</a>
+  </div>
 
-  <aside class="sidebar">
-    <h3 class="text-center mb-4">TerraBook</h3>
-    <a href="#" class="active" data-section="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <a href="#" data-section="overview"><i class="bi bi-eye"></i> Overview</a>
-    <a href="#" data-section="bookings"><i class="bi bi-calendar-check"></i> Bookings</a>
-    <a href="#" data-section="listings"><i class="bi bi-house-door"></i> Listings</a>
-    <a href="#" data-section="customers"><i class="bi bi-people"></i> Customers</a>
-    <a href="#" data-section="revenue"><i class="bi bi-currency-dollar"></i> Revenue</a>
-    <a href="#" data-section="impact"><i class="bi bi-leaf"></i> Impact</a>
-    <a href="#" data-section="reports"><i class="bi bi-file-earmark-text"></i> Reports</a>
-    <a href="#" data-section="settings"><i class="bi bi-gear"></i> Settings</a>
-  </aside>
-
-  <main>
-    <header>
-      <div class="d-flex align-items-center gap-3">
-        <h2 id="page-title">Dashboard</h2>
-        <div class="notifications" id="notifBell" tabindex="0" role="button" aria-label="Notifications">
-          <i class="bi bi-bell"></i>
-          <span class="badge" id="notifCount" style="display:none">0</span>
-          <div class="dropdown-menu dropdown-menu-end p-3" id="notifDropdown" style="display:none; position:absolute; top:35px; right:0; z-index:1000; background:#fff; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); width:280px;">
-            <h6>Notifications</h6>
-            <ul id="notifList" style="list-style:none; padding-left:0; max-height:200px; overflow-y:auto;"></ul>
-            <small id="notifEmpty" class="text-muted">No new notifications</small>
-          </div>
+  <div class="main">
+    <div class="header">
+      <h1>Dashboard</h1>
+      <div class="profile-dropdown">
+        <button class="profile-btn">👤 Profile</button>
+        <div class="profile-menu">
+          <a href="#">Explore</a>
+          <a href="#">Business Dashboard</a>
+          <a href="#">My Bookings</a>
+          <a href="#">Settings</a>
+          <a href="#">Logout</a>
         </div>
       </div>
+    </div>
 
-      <div class="dropdown">
-        <button class="btn btn-outline-success dropdown-toggle" type="button" id="profileMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-person-circle"></i> Profile
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenuButton">
-          <li><a class="dropdown-item" href="#">Explore</a></li>
-          <li><a class="dropdown-item" href="#">Business Dashboard</a></li>
-          <li><a class="dropdown-item" href="#">My Bookings</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li><hr class="dropdown-divider" /></li>
-          <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
-        </ul>
-      </div>
-    </header>
-
-    <section id="filters" class="filter-group">
-      <select id="filterRegion" class="form-select form-select-sm" aria-label="Filter by Region">
-        <option value="all" selected>All Regions</option>
-        <option value="north">North</option>
-        <option value="south">South</option>
-        <option value="east">East</option>
-        <option value="west">West</option>
+    <div class="filters">
+      <select id="filterTime">
+        <option value="Today">Today</option>
+        <option value="Week">This Week</option>
+        <option value="Month">This Month</option>
       </select>
-
-      <select id="filterTime" class="form-select form-select-sm" aria-label="Filter by Time Range">
-        <option value="today">Today</option>
-        <option value="week" selected>This Week</option>
-        <option value="month">This Month</option>
+      <select>
+        <option>All Regions</option>
+        <option>South Africa</option>
+        <option>East Africa</option>
       </select>
-
-      <select id="filterBusiness" class="form-select form-select-sm" aria-label="Filter by Business Type">
-        <option value="all" selected>All Business Types</option>
-        <option value="hotel">Hotel</option>
-        <option value="eco-tour">Eco-tour</option>
-        <option value="restaurant">Restaurant</option>
+      <select>
+        <option>All Business Types</option>
+        <option>Hotels</option>
+        <option>Eco-Tours</option>
+        <option>Restaurants</option>
       </select>
-    </section>
+    </div>
 
-    <section id="dashboard-content">
-      <div class="export-buttons mb-3">
-        <button id="exportPdf" class="btn btn-success btn-sm me-2"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button>
-        <button id="exportExcel" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-excel"></i> Export Excel</button>
-      </div>
+    <div class="dashboard-grid">
+      <canvas id="barChart" height="200"></canvas>
+      <canvas id="lineChart" height="200"></canvas>
+      <canvas id="pieChart" height="200"></canvas>
+      <canvas id="doughnutChart" height="200"></canvas>
+      <canvas id="stackedChart" height="200"></canvas>
+      <canvas id="radarChart" height="200"></canvas>
+      <canvas id="ecoScoreChart" height="200"></canvas>
+    </div>
 
-      <div class="chart-grid">
-        <!-- Booking Trends (Stacked Bar) -->
-        <div class="chart-card">
-          <h5>Booking Trends</h5>
-          <canvas id="bookingTrendsChart"></canvas>
-        </div>
-
-        <!-- Eco-Friendly Score Tracker (Doughnut) -->
-        <div class="chart-card">
-          <h5>Eco-Friendly Score</h5>
-          <canvas id="ecoScoreChart"></canvas>
-          <div id="ecoScoreValue" style="text-align:center; font-weight:700; font-size: 1.25rem; margin-top: 10px; color:#2e7d32;">
-            78 / 100
-          </div>
-        </div>
-
-        <!-- Top Performing Properties (Radar) -->
-        <div class="chart-card">
-          <h5>Top Performing Properties</h5>
-          <canvas id="topPropertiesChart"></canvas>
-        </div>
-
-        <!-- Carbon Savings per Booking (Pie) -->
-        <div class="chart-card">
-          <h5>Carbon Savings per Booking</h5>
-          <canvas id="carbonSavingsChart"></canvas>
-        </div>
-
-        <!-- Sustainability Badges -->
-        <div class="chart-card">
-          <h5>Sustainability Badges Earned</h5>
-          <ul id="badgesList" style="list-style:none; padding-left:0; font-size: 1.4rem; color: #2e7d32;">
-            <li><span class="badge-eco">🌱</span> Eco Star</li>
-            <li><span class="badge-eco">🌿</span> Earth Ally</li>
-            <li><span class="badge-eco">🌳</span> Forest Guardian</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Calendar -->
+    <div class="calendar-container" style="margin-top: 30px;">
       <div id="calendar"></div>
-    </section>
-  </main>
+    </div>
 
-  <!-- Bootstrap Bundle JS (Popper + Bootstrap) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="export-buttons">
+      <button id="exportPdf">Download PDF</button>
+      <button id="exportExcel">Download Excel</button>
+    </div>
+  </div>
 
   <script>
-    // Sidebar link click: set active class and update page title
-    document.querySelectorAll('.sidebar a').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-        link.classList.add('active');
-        document.getElementById('page-title').textContent = link.textContent.trim();
-      });
-    });
+    const chartColors = ['#66bb6a', '#81c784', '#a5d6a7', '#c8e6c9'];
 
-    // Notifications
-    const notifBell = document.getElementById('notifBell');
-    const notifDropdown = document.getElementById('notifDropdown');
-    const notifCount = document.getElementById('notifCount');
-    const notifList = document.getElementById('notifList');
-    const notifEmpty = document.getElementById('notifEmpty');
-
-    let notifications = [
-      { id: 1, text: "New booking received for 'Eco Lodge A'", time: "2 mins ago" },
-      { id: 2, text: "Message from customer John D.", time: "10 mins ago" },
-      { id: 3, text: "Award earned: 🌿 Earth Ally", time: "1 day ago" }
-    ];
-
-    function renderNotifications() {
-      notifList.innerHTML = "";
-      if (notifications.length === 0) {
-        notifEmpty.style.display = "block";
-        notifCount.style.display = "none";
-      } else {
-        notifEmpty.style.display = "none";
-        notifCount.style.display = "inline-block";
-        notifCount.textContent = notifications.length;
-        notifications.forEach(n => {
-          const li = document.createElement('li');
-          li.style.padding = '8px 5px';
-          li.style.borderBottom = '1px solid #eee';
-          li.innerHTML = `<strong>${n.text}</strong><br><small class="text-muted">${n.time}</small>`;
-          notifList.appendChild(li);
-        });
-      }
-    }
-    renderNotifications();
-
-    notifBell.addEventListener('click', () => {
-      if (notifDropdown.style.display === "none" || notifDropdown.style.display === "") {
-        notifDropdown.style.display = "block";
-      } else {
-        notifDropdown.style.display = "none";
-      }
-    });
-
-    // Close notification dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!notifBell.contains(e.target) && !notifDropdown.contains(e.target)) {
-        notifDropdown.style.display = "none";
-      }
-    });
-
-    // Chart Data & Options
-
-    // Booking Trends (stacked bar)
-    const bookingTrendsCtx = document.getElementById('bookingTrendsChart').getContext('2d');
-    const bookingTrendsChart = new Chart(bookingTrendsCtx, {
+    new Chart(document.getElementById('barChart'), {
       type: 'bar',
       data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+        datasets: [{
+          label: 'Bookings',
+          data: [10, 25, 15, 35],
+          backgroundColor: chartColors[0]
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          label: 'Revenue',
+          data: [300, 500, 400, 650],
+          borderColor: chartColors[1],
+          fill: false
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Hotels', 'Tours', 'Restaurants'],
+        datasets: [{
+          data: [40, 35, 25],
+          backgroundColor: chartColors
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('doughnutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Direct', 'Referral', 'Organic'],
+        datasets: [{
+          data: [55, 30, 15],
+          backgroundColor: chartColors
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('stackedChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar'],
         datasets: [
           {
             label: 'Hotels',
-            data: [12, 19, 3, 5, 2, 3, 7],
-            backgroundColor: 'rgba(144, 238, 144, 0.7)',
-            stack: 'Stack 0'
+            data: [12, 19, 3],
+            backgroundColor: '#66bb6a'
           },
           {
-            label: 'Eco-Tours',
-            data: [7, 11, 5, 8, 3, 7, 2],
-            backgroundColor: 'rgba(34, 139, 34, 0.7)',
-            stack: 'Stack 0'
-          },
-          {
-            label: 'Restaurants',
-            data: [3, 5, 2, 3, 4, 1, 0],
-            backgroundColor: 'rgba(60, 179, 113, 0.7)',
-            stack: 'Stack 0'
+            label: 'Tours',
+            data: [5, 10, 8],
+            backgroundColor: '#a5d6a7'
           }
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'nearest',
-          intersect: true
-        },
-        plugins: {
-          tooltip: {
-            enabled: true
-          }
-        },
         scales: {
-          x: {
-            stacked: true
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true
-          }
-        },
-        onClick(evt, activeEls) {
-          if (activeEls.length > 0) {
-            const datasetIndex = activeEls[0].datasetIndex;
-            const index = activeEls[0].index;
-            alert(`Clicked on ${this.data.datasets[datasetIndex].label} for ${this.data.labels[index]}`);
-          }
+          x: { stacked: true },
+          y: { stacked: true }
         }
       }
     });
 
-    // Eco-Friendly Score (Doughnut)
-    const ecoScoreCtx = document.getElementById('ecoScoreChart').getContext('2d');
-    const ecoScoreChart = new Chart(ecoScoreCtx, {
-      type: 'doughnut',
+    new Chart(document.getElementById('radarChart'), {
+      type: 'radar',
       data: {
-        labels: ['Energy Saved', 'Water Saved', 'Waste Reduced'],
+        labels: ['Lodge A', 'BnB B', 'Camp C'],
         datasets: [{
-          label: 'Eco Score Breakdown',
-          data: [45, 25, 30],
-          backgroundColor: [
-            'rgba(144, 238, 144, 0.8)',
-            'rgba(34, 139, 34, 0.8)',
-            'rgba(60, 179, 113, 0.8)'
-          ]
+          label: 'Performance',
+          data: [80, 70, 90],
+          backgroundColor: 'rgba(102,187,106,0.2)',
+          borderColor: '#66bb6a'
         }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '70%',
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
       }
     });
 
-    // Top Performing Properties (Radar)
-    const topPropertiesCtx = document.getElementById('topPropertiesChart').getContext('2d');
-    const topPropertiesChart = new Chart(topPropertiesCtx, {
-      type
-// Carbon Savings (Pie)
-const carbonCtx = document.getElementById('carbonSavingsChart').getContext('2d');
-const carbonChart = new Chart(carbonCtx, {
-  type: 'pie',
-  data: {
-    labels: ['Travel', 'Lodging', 'Activities'],
-    datasets: [{
-      data: [40, 30, 30],
-      backgroundColor: [
-        'rgba(144, 238, 144, 0.8)',
-        'rgba(34, 139, 34, 0.8)',
-        'rgba(60, 179, 113, 0.8)'
-      ]
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false
-  }
-});
+    new Chart(document.getElementById('ecoScoreChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Lodge A', 'BnB B', 'Camp C'],
+        datasets: [{
+          label: 'Eco Score',
+          data: [88, 75, 92],
+          backgroundColor: '#4caf50'
+        }]
+      }
+    });
 
-// Calendar
-document.addEventListener('DOMContentLoaded', function () {
-  const calendarEl = document.getElementById('calendar');
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    events: [
-      { title: 'Booking: Eco Lodge A', start: '2025-07-10' },
-      { title: 'Eco Tour: Jungle Safari', start: '2025-07-14' },
-      { title: 'Booking: Treehouse BnB', start: '2025-07-22' }
-    ]
-  });
-  calendar.render();
-});
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendar');
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: [
+          { title: 'Booking - Eco Lodge A', start: '2025-07-22' },
+          { title: 'Tour - River Adventure', start: '2025-07-25' }
+        ]
+      });
+      calendar.render();
+    });
 
-// Export PDF
-document.getElementById('exportPdf').addEventListener('click', () => {
-  import('jspdf').then(jsPDF => {
-    const doc = new jsPDF.jsPDF();
-    doc.text("TerraBook Dashboard Report", 20, 20);
-    doc.text("Filters applied: " + document.getElementById('filterTime').value, 20, 30);
-    doc.save("terrabook-report.pdf");
-  });
-});
+    document.getElementById('exportPdf').addEventListener('click', () => {
+      import('jspdf').then(jsPDF => {
+        const doc = new jsPDF.jsPDF();
+        doc.text("TerraBook Report", 20, 20);
+        doc.save("terrabook-dashboard.pdf");
+      });
+    });
 
-// Export Excel
-document.getElementById('exportExcel').addEventListener('click', () => {
-  const ws = XLSX.utils.aoa_to_sheet([
-    ["Metric", "Value"],
-    ["Bookings", "52"],
-    ["Carbon Saved", "32kg"],
-    ["Water Saved", "24L"]
-  ]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Dashboard");
-  XLSX.writeFile(wb, "terrabook-dashboard.xlsx");
-});
- </script> 
-</body> 
-</html> 
-
+    document.getElementById('exportExcel').addEventListener('click', () => {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["Metric", "Value"],
+        ["Bookings", "52"],
+        ["Carbon Saved", "30kg"]
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Report");
+      XLSX.writeFile(wb, "terrabook-dashboard.xlsx");
+    });
+  </script>
+</body>
+</html>
 
